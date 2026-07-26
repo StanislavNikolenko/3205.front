@@ -14,6 +14,28 @@ export type Job = {
   urlErrorCount: number,
 }
 
+export type JobStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled'
+  | 'failed'
+
+export type UrlStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'success'
+  | 'error'
+  | 'cancelled'
+
+export type UrlResult = {
+  url: string
+  status: UrlStatus
+  httpStatusCode?: number
+  error?: string
+  durationMs?: number
+}
+
 export async function createJob(urls: string[]): Promise<CreateJobResponse> {
   const res = await fetch(`${API_URL}/api/jobs`, {
     method: 'POST',
@@ -36,6 +58,19 @@ export async function getAllJobs(): Promise<Job[]> {
   
     if (!res.ok) {
       throw new Error(`Failed to get jobs: ${res.status}`)
+    }
+  
+    return res.json();
+}
+
+export async function getJobResults(jobId): Promise<UrlResult[]> {
+    const res = await fetch(`${API_URL}/api/jobs/${jobId}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
+  
+    if (!res.ok) {
+      throw new Error(`Failed to get job results: ${res.status}`)
     }
   
     return res.json();

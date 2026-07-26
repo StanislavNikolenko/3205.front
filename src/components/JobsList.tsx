@@ -1,30 +1,32 @@
 import { useEffect, useState } from 'react'
 import { getAllJobs, type Job } from '../api/jobs'
 import { useJobStore } from '../store/jobStore'
+import { ActiveJobDetails } from './ActiveJobDetails';
 
 export function JobsList() {
-  const [jobs, setJobs] = useState<Job[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const activeJobId = useJobStore((s) => s.activeJobId)
-  const setActiveJobId = useJobStore((s) => s.setActiveJobId)
+  const activeJobId = useJobStore((s) => s.activeJobId);
+  const setActiveJobId = useJobStore((s) => s.setActiveJobId);
+  const clearActiveJobId = useJobStore((s) => s.clearActiveJobId);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
 
     async function load() {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
       try {
-        const data = await getAllJobs()
-        if (!cancelled) setJobs(data)
+        const data = await getAllJobs();
+        if (!cancelled) setJobs(data);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Ошибка загрузки')
+          setError(err instanceof Error ? err.message : 'Ошибка загрузки');
         }
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) setLoading(false);
       }
     }
 
@@ -32,7 +34,7 @@ export function JobsList() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, []);
 
   if (loading) return <p>Загрузка заданий…</p>
   if (error) return <p role="alert">{error}</p>
@@ -45,11 +47,13 @@ export function JobsList() {
         {jobs.map((job) => {
           const isActive = job.id === activeJobId
           return (
-            <li key={job.id}>
+            <li key={job.id} className={isActive ? 'job-card active' : 'job-card'}>
               <button
                 type="button"
-                className={isActive ? 'job-item active' : 'job-item'}
-                onClick={() => setActiveJobId(job.id)}
+                className="job-card__summary"
+                onClick={() =>
+                    isActive ? clearActiveJobId() : setActiveJobId(job.id)
+                  }
               >
                 <span>Задание: {job.id}</span>
                 <span>Создано: {new Date(job.createdAt).toLocaleString()}</span>
@@ -57,12 +61,12 @@ export function JobsList() {
                 <span>Всего URL: {job.urlCount}</span>
                 <span>Успешно: {job.urlSuccessCount}</span>
                 <span>Ошибки: {job.urlErrorCount}</span>
-                {isActive && <span> ← active</span>}
               </button>
+              {isActive && <ActiveJobDetails />}
             </li>
           )
         })}
       </ul>
     </section>
-  )
+  );
 }
