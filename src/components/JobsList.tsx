@@ -1,16 +1,25 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getAllJobs, type Job } from '../api/jobs'
 import { useJobStore } from '../store/jobStore'
 import { ActiveJobDetails } from './ActiveJobDetails';
 
 export function JobsList() {
   const [jobs, setJobs] = useState<Job[]>([]);
+
+  const handleJobUpdated = useCallback((updated: Job) => {
+    setJobs((prev) =>
+      prev.map((j) => (j.id === updated.id ? { ...j, ...updated } : j))
+    )
+  }, []);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const activeJobId = useJobStore((s) => s.activeJobId);
   const setActiveJobId = useJobStore((s) => s.setActiveJobId);
   const clearActiveJobId = useJobStore((s) => s.clearActiveJobId);
+
+  const refreshToken = useJobStore((s) => s.refreshToken);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,7 +43,7 @@ export function JobsList() {
     return () => {
       cancelled = true
     }
-  }, []);
+  }, [refreshToken]);
 
   if (loading) return <p>Загрузка заданий…</p>
   if (error) return <p role="alert">{error}</p>
@@ -62,7 +71,7 @@ export function JobsList() {
                 <span>Успешно: {job.urlSuccessCount}</span>
                 <span>Ошибки: {job.urlErrorCount}</span>
               </button>
-              {isActive && <ActiveJobDetails />}
+              {isActive && <ActiveJobDetails onJobUpdated={handleJobUpdated}/>}
             </li>
           )
         })}

@@ -28,6 +28,8 @@ export type UrlStatus =
   | 'error'
   | 'cancelled'
 
+export type JobResults = Job & { results: UrlResult[] };
+
 export type UrlResult = {
   url: string
   status: UrlStatus
@@ -63,7 +65,7 @@ export async function getAllJobs(): Promise<Job[]> {
     return res.json();
 }
 
-export async function getJobResults(jobId): Promise<UrlResult[]> {
+export async function getJobResults(jobId): Promise<JobResults> {
     const res = await fetch(`${API_URL}/api/jobs/${jobId}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },

@@ -1,17 +1,21 @@
 import { useEffect, useState } from 'react'
-import { getJobResults, type UrlResult } from '../api/jobs'
+import { getJobResults, type Job, type JobResults, type UrlResult } from '../api/jobs'
 import { useJobStore } from '../store/jobStore'
 
 function isProcessed(status: UrlResult['status']) {
   return status === 'success' || status === 'error' || status === 'cancelled'
 }
 
-export function ActiveJobDetails() {
+type Props = {
+  onJobUpdated: (job: Job) => void
+}
+
+export function ActiveJobDetails({ onJobUpdated }: Props) {
   const activeJobId = useJobStore((s) => s.activeJobId)
-  const [results, setResults] = useState<UrlResult[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
+  const [job, setJob] = useState<JobResults | null>(null)
+  
   useEffect(() => {
     if (!activeJobId) return;
 
@@ -22,7 +26,16 @@ export function ActiveJobDetails() {
       setError(null);
       try {
         const data = await getJobResults(activeJobId!);
-        if (!cancelled) setResults(data);
+        if (cancelled) return;
+        setJob(data);
+        onJobUpdated?.({
+            id: data.id,
+            status: data.status,
+            createdAt: data.createdAt,
+            urlCount: data.urlCount,
+            urlSuccessCount: data.urlSuccessCount,
+            urlErrorCount: data.urlErrorCount,
+          });
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Ошибка загрузки');
@@ -38,8 +51,16 @@ export function ActiveJobDetails() {
       try {
         const data = await getJobResults(activeJobId!);
         if (cancelled) return;
-        setResults(data);
-        const allDone = data.every((r) => isProcessed(r.status))
+        setJob(data);
+        onJobUpdated({
+          id: data.id,
+          status: data.status,
+          createdAt: data.createdAt,
+          urlCount: data.urlCount,
+          urlSuccessCount: data.urlSuccessCount,
+          urlErrorCount: data.urlErrorCount,
+        });
+        const allDone = data.results.every((r) => isProcessed(r.status))
         if (allDone) clearInterval(timer);
       } catch (e) {
         console.error(e);
@@ -50,13 +71,13 @@ export function ActiveJobDetails() {
       cancelled = true;
       clearInterval(timer);
     }
-  }, [activeJobId])
+  }, [activeJobId, onJobUpdated])
 
   if (!activeJobId) {
     return <p>Выберите задание из списка</p>
   }
 
-  if (loading && results.length === 0) {
+  if (loading || !job) {
     return <p>Загрузка деталей…</p>
   }
 
@@ -64,8 +85,8 @@ export function ActiveJobDetails() {
     return <p role="alert">{error}</p>
   }
 
-  const total = results.length
-  const done = results.filter((r) => isProcessed(r.status)).length
+  const total = job.results.length
+  const done = job.results.filter((r) => isProcessed(r.status)).length
 
   return (
     <section className="job-details">
@@ -76,7 +97,7 @@ export function ActiveJobDetails() {
       </p>
 
       <ul>
-        {results.map((r) => (
+        {job.results.map((r) => (
           <li key={r.url}>
             <div>{r.url}</div>
             <div>Статус: {r.status}</div>

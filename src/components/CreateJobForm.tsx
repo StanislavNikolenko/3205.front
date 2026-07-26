@@ -6,7 +6,8 @@ export function CreateJobForm() {
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
   const setActiveJobId = useJobStore((s) => s.setActiveJobId);
-
+  const requestJobsRefresh = useJobStore((s) => s.requestJobsRefresh);
+  
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
@@ -21,6 +22,7 @@ export function CreateJobForm() {
     try {
       const { jobId } = await createJob(urls);
       setActiveJobId(jobId);
+      requestJobsRefresh();
     } catch (err) {
       console.error(err);
     } finally {
