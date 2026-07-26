@@ -5,6 +5,15 @@ export type CreateJobResponse = {
   status: string;
 }
 
+export type Job = {
+  id: string,
+  status: string,
+  createdAt: string,
+  urlCount: number,
+  urlSuccessCount: number,
+  urlErrorCount: number,
+}
+
 export async function createJob(urls: string[]): Promise<CreateJobResponse> {
   const res = await fetch(`${API_URL}/api/jobs`, {
     method: 'POST',
@@ -17,4 +26,17 @@ export async function createJob(urls: string[]): Promise<CreateJobResponse> {
   }
 
   return res.json()
+}
+
+export async function getAllJobs(): Promise<Job[]> {
+    const res = await fetch(`${API_URL}/api/jobs`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
+  
+    if (!res.ok) {
+      throw new Error(`Failed to get jobs: ${res.status}`)
+    }
+  
+    return res.json();
 }
