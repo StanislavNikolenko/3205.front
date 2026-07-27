@@ -77,3 +77,19 @@ export async function getJobResults(jobId): Promise<JobResults> {
   
     return res.json();
 }
+
+export async function cancelJob(jobId: string): Promise<{ jobId: string; status: string }> {
+    const res = await fetch(`${API_URL}/api/jobs/${jobId}`, {
+      method: 'DELETE',
+    })
+  
+    if (!res.ok) {
+      throw new Error(`Failed to cancel job: ${res.status}`)
+    }
+  
+    return res.json()
+  }
+  
+  export function canCancelJob(status: string) {
+    return status === 'pending' || status === 'in_progress'
+  }

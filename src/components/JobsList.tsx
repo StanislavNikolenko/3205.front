@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { getAllJobs, type Job } from '../api/jobs'
+import { canCancelJob, cancelJob, getAllJobs, type Job } from '../api/jobs'
 import { useJobStore } from '../store/jobStore'
 import { ActiveJobDetails } from './ActiveJobDetails';
 
@@ -54,6 +54,7 @@ export function JobsList() {
       <h2>Последние задания</h2>
       <ul>
         {jobs.map((job) => {
+          const canCancel = canCancelJob(job.status);  
           const isActive = job.id === activeJobId
           return (
             <li key={job.id} className={isActive ? 'job-card active' : 'job-card'}>
@@ -71,6 +72,22 @@ export function JobsList() {
                 <span>Успешно: {job.urlSuccessCount}</span>
                 <span>Ошибки: {job.urlErrorCount}</span>
               </button>
+
+              {canCancel && (
+                <button
+                  type="button"
+                  className="job-card__cancel"
+                  onClick={async () => {
+                    try {
+                    await cancelJob(job.id)
+                    handleJobUpdated({ ...job, status: 'cancelled' })
+                    } catch (err) {
+                    console.error(err)
+                    }
+                }}
+                >
+                  Отменить задание
+                </button>)}
               {isActive && <ActiveJobDetails onJobUpdated={handleJobUpdated}/>}
             </li>
           )
