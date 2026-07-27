@@ -30,7 +30,7 @@ export function JobsList() {
         const data = await getAllJobs();
         const sorted = [...data].sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
+        );
         if (!cancelled) setJobs(sorted);
       } catch (err) {
         if (!cancelled) {
@@ -51,9 +51,9 @@ export function JobsList() {
     }
   }, [refreshToken]);
 
-  if (loading) return <p>Загрузка заданий…</p>
-  if (error) return <p role="alert">{error}</p>
-  if (jobs.length === 0) return <p>Заданий пока нет</p>
+  if (loading) return <p>Загрузка заданий…</p>;
+  if (error) return <p role="alert">{error}</p>;
+  if (jobs.length === 0) return <p>Заданий пока нет</p>;
 
   return (
     <section className="jobs-list">

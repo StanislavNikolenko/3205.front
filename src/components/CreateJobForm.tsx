@@ -3,8 +3,8 @@ import { createJob } from '../api/jobs'
 import { useJobStore } from '../store/jobStore'
 
 export function CreateJobForm() {
-  const [text, setText] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [text, setText] = useState('');
+  const [loading, setLoading] = useState(false);
   const setActiveJobId = useJobStore((s) => s.setActiveJobId);
   const requestJobsRefresh = useJobStore((s) => s.requestJobsRefresh);
   
@@ -16,7 +16,7 @@ export function CreateJobForm() {
       .map((line) => line.trim())
       .filter(Boolean);
 
-    if (urls.length === 0) return
+    if (urls.length === 0) return;
 
     setLoading(true);
     try {

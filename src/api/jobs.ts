@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
 
 export type CreateJobResponse = {
   jobId: string;
@@ -7,7 +7,7 @@ export type CreateJobResponse = {
 
 export type Job = {
   id: string,
-  status: string,
+  status: JobStatus,
   createdAt: string,
   urlCount: number,
   urlSuccessCount: number,
@@ -43,23 +43,23 @@ export async function createJob(urls: string[]): Promise<CreateJobResponse> {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ urls }),
-  })
+  });
 
   if (!res.ok) {
-    throw new Error(`Failed to create job: ${res.status}`)
+    throw new Error(`Failed to create job: ${res.status}`);
   }
 
-  return res.json()
+  return res.json();
 }
 
 export async function getAllJobs(): Promise<Job[]> {
     const res = await fetch(`${API_URL}/api/jobs`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
-    })
+    });
   
     if (!res.ok) {
-      throw new Error(`Failed to get jobs: ${res.status}`)
+      throw new Error(`Failed to get jobs: ${res.status}`);
     }
   
     return res.json();
@@ -69,27 +69,27 @@ export async function getJobResults(jobId: string): Promise<JobResults> {
     const res = await fetch(`${API_URL}/api/jobs/${jobId}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
-    })
+    });
   
     if (!res.ok) {
-      throw new Error(`Failed to get job results: ${res.status}`)
+      throw new Error(`Failed to get job results: ${res.status}`);
     }
   
     return res.json();
 }
 
-export async function cancelJob(jobId: string): Promise<{ jobId: string; status: string }> {
+export async function cancelJob(jobId: string): Promise<{ jobId: string; status: JobStatus }> {
     const res = await fetch(`${API_URL}/api/jobs/${jobId}`, {
       method: 'DELETE',
-    })
+    });
   
     if (!res.ok) {
-      throw new Error(`Failed to cancel job: ${res.status}`)
+      throw new Error(`Failed to cancel job: ${res.status}`);
     }
   
-    return res.json()
+    return res.json();
   }
   
-  export function canCancelJob(status: string) {
+  export function canCancelJob(status: JobStatus) {
     return status === 'pending' || status === 'in_progress'
   }

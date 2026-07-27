@@ -11,10 +11,10 @@ type Props = {
 }
 
 export function ActiveJobDetails({ onJobUpdated }: Props) {
-  const activeJobId = useJobStore((s) => s.activeJobId)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [job, setJob] = useState<JobResults | null>(null)
+  const activeJobId = useJobStore((s) => s.activeJobId);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [job, setJob] = useState<JobResults | null>(null);
   
   useEffect(() => {
     if (!activeJobId) return;
@@ -60,7 +60,7 @@ export function ActiveJobDetails({ onJobUpdated }: Props) {
           urlSuccessCount: data.urlSuccessCount,
           urlErrorCount: data.urlErrorCount,
         });
-        const allDone = data.results.every((r) => isProcessed(r.status))
+        const allDone = data.results.every((r) => isProcessed(r.status));
         if (allDone) clearInterval(timer);
       } catch (e) {
         console.error(e);
@@ -71,7 +71,7 @@ export function ActiveJobDetails({ onJobUpdated }: Props) {
       cancelled = true;
       clearInterval(timer);
     }
-  }, [activeJobId, onJobUpdated])
+  }, [activeJobId, onJobUpdated]);
 
   if (!activeJobId) {
     return <p>Выберите задание из списка</p>
@@ -85,8 +85,8 @@ export function ActiveJobDetails({ onJobUpdated }: Props) {
     return <p role="alert">{error}</p>
   }
 
-  const total = job.results.length
-  const done = job.results.filter((r) => isProcessed(r.status)).length
+  const total = job.results.length;
+  const done = job.results.filter((r) => isProcessed(r.status)).length;
 
   return (
     <section className="job-details">
