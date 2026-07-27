@@ -65,7 +65,7 @@ export async function getAllJobs(): Promise<Job[]> {
     return res.json();
 }
 
-export async function getJobResults(jobId): Promise<JobResults> {
+export async function getJobResults(jobId: string): Promise<JobResults> {
     const res = await fetch(`${API_URL}/api/jobs/${jobId}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
