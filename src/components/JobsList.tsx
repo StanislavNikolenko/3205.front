@@ -25,11 +25,13 @@ export function JobsList() {
     let cancelled = false;
 
     async function load() {
-      setLoading(true);
       setError(null);
       try {
         const data = await getAllJobs();
-        if (!cancelled) setJobs(data);
+        const sorted = [...data].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+        if (!cancelled) setJobs(sorted);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Ошибка загрузки');
@@ -39,9 +41,13 @@ export function JobsList() {
       }
     }
 
-    load()
+    load();
+    
+    const timer = setInterval(load, 3000);
+
     return () => {
-      cancelled = true
+      cancelled = true;
+      clearInterval(timer);
     }
   }, [refreshToken]);
 
